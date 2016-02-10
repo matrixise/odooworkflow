@@ -1,0 +1,39 @@
+<openerp>
+     <data>
+          <record model="workflow" id="wkf_account_invoice">
+               <field name="osv">account.invoice</field>
+               <field name="on_create">True</field>
+               <field name="name">account.invoice.workflow</field>
+          </record>
+
+          <record model="workflow.activity" id="act_open">
+               <field name="wkf_id" ref="wkf_account_invoice" />
+               <field name="flow_start">True</field>
+               <field name="name">open</field>
+          </record>
+
+          <record model="workflow.activity" id="act_proforma2">
+               <field name="wkf_id" ref="wkf_account_invoice" />
+               <field name="name">proforma2</field>
+               <field name="kind">dummy</field>
+          </record>
+
+          <record model="workflow.activity" id="act_closed">
+               <field name="wkf_id" ref="wkf_account_invoice" />
+               <field name="flow_stop">True</field>
+               <field name="name">closed</field>
+          </record>
+
+          <record model="workflow.transition" id="open_to_proforma2">
+               <field name="act_from" ref="act_open"/>
+               <field name="act_to" ref="act_proforma2" />
+               <field name="signal">signal_open</filed>
+          </record>
+
+          <record model="workflow.transition" id="proforma2_closed">
+               <field name="act_from" ref="act_proforma2" />
+               <field name="act_to" ref="act_closed"/>
+               <field name="signal">signal_closed</field>
+          </record>
+     </data>
+</openerp>

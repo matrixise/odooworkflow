@@ -1,0 +1,26 @@
+# This is a small example of the account.invoice workflow
+account.invoice {
+    draft(id: 'act_draft') {
+        start: True,
+        stop: True
+    }
+    open {
+        function: """
+            action_date_assign()
+            action_move_create()
+            action_number()
+            invoice_validate()
+            self.write({'': 1})
+        """
+    }
+
+    closed {
+        stop: True
+    }
+    draft -> open (id: 'draft_to_open')
+    open -> closed
+
+    act_proforma2 -> account.act_open (id: 'draft') {
+        signal: invoice_open
+    }
+}

@@ -1,0 +1,45 @@
+account.invoice {
+    draft {
+        start: True
+    }
+
+    proforma2 {
+        function: """write({'state': 'proforma2'})"""
+    }
+
+    open {
+        function: """
+            action_date_assign()
+            action_move_create()
+            action_number()
+            invoice_validate()
+        """
+    }
+
+    re-open {
+        function: """write({'state': 'open'})"""
+    }
+
+    paid {
+        function: """confirm_paid()""",
+        signalsend: 'subflow.paid'
+    }
+
+    cancel {
+        stop: True,
+        function: """
+            action_cancel()
+            write({'state': 'cancel'})
+        """
+    }
+
+    draft -> open (signal: 'invoice_open')
+    open -> paid (condition: 'reconciled')
+    open -> cancel (signal: 'invoice_cancel')
+    paid -> re-open (condition: 'not reconciled')
+    re-open -> cancel (signal: 'invoice_cancel')
+    re-open -> paid (condition: 'reconciled')
+    draft -> proforma2 (signal: 'invoice_proforma2')
+    proforma2 -> account.act_open (signal: 'invoice_open')
+    proforma2 -> account.act_cancel (signal: 'invoice_cancel')
+}
